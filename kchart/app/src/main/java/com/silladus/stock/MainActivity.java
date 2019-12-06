@@ -1,12 +1,9 @@
 package com.silladus.stock;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,25 +14,35 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import java.util.Locale;
+
+import butterknife.BindView;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity {
-    @Bind(R.id.btn_min)
+public class MainActivity extends AppCompatActivity implements IActivity {
+    @BindView(R.id.btn_min)
     TextView btnMin;
-    @Bind(R.id.btn_day)
+    @BindView(R.id.btn_day)
     TextView btnDay;
-    @Bind(R.id.btn_5day)
+    @BindView(R.id.btn_5day)
     TextView btn5Day;
-    @Bind(R.id.btn_week)
+    @BindView(R.id.btn_week)
     TextView btnWeek;
-    @Bind(R.id.btn_month)
+    @BindView(R.id.btn_month)
     TextView btnMonth;
-    @Bind(R.id.btn_mins)
+    @BindView(R.id.btn_mins)
     TextView btnMins;
     private Fragment[] fragments;
     private int currentIndex = -1;
+
+    @Override
+    public View getContentView() {
+        return View.inflate(this, R.layout.activity_main, null);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,14 +52,13 @@ public class MainActivity extends AppCompatActivity {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
         fragments = new Fragment[3];
         btnMin.setBackgroundColor(Color.WHITE);
         showFragment(0);
         if (!isVertical) {
             showOnly(R.id.xxxxx);
         }
+
     }
 
     @OnClick({R.id.btn_min, R.id.btn_5day, R.id.btn_day, R.id.btn_week, R.id.btn_month, R.id.btn_mins})
@@ -108,12 +114,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.btn_mins:
                 showMinMenu(view);
-//                btnMin.setBackgroundColor(0x00000000);
-//                btnDay.setBackgroundColor(0x00000000);
-//                btn5Day.setBackgroundColor(0x00000000);
-//                btnWeek.setBackgroundColor(0x00000000);
-//                btnMonth.setBackgroundColor(0x00000000);
-//                btnMins.setBackgroundColor(Color.WHITE);
                 break;
         }
     }
@@ -145,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int[] calculatePopWindowPos(final View anchorView, final View contentView) {
-        final int windowPos[] = new int[2];
-        final int anchorLoc[] = new int[2];
+        final int[] windowPos = new int[2];
+        final int[] anchorLoc = new int[2];
         // 获取锚点View在屏幕上的左上角坐标位置
         anchorView.getLocationOnScreen(anchorLoc);
         final int anchorHeight = anchorView.getHeight();
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                         btn5Day.setBackgroundColor(0x00000000);
                         btnWeek.setBackgroundColor(0x00000000);
                         btnMonth.setBackgroundColor(0x00000000);
-                        btnMins.setText(60 + "分v");
+                        btnMins.setText(formatText(60));
                         break;
                     case R.id.menu_30min:
                         btnMin.setBackgroundColor(0x00000000);
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                         btn5Day.setBackgroundColor(0x00000000);
                         btnWeek.setBackgroundColor(0x00000000);
                         btnMonth.setBackgroundColor(0x00000000);
-                        btnMins.setText(30 + "分v");
+                        btnMins.setText(formatText(30));
                         break;
                     case R.id.menu_15min:
                         btnMin.setBackgroundColor(0x00000000);
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                         btn5Day.setBackgroundColor(0x00000000);
                         btnWeek.setBackgroundColor(0x00000000);
                         btnMonth.setBackgroundColor(0x00000000);
-                        btnMins.setText(15 + "分v");
+                        btnMins.setText(formatText(15));
                         break;
                     case R.id.menu_5min:
                         btnMin.setBackgroundColor(0x00000000);
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                         btn5Day.setBackgroundColor(0x00000000);
                         btnWeek.setBackgroundColor(0x00000000);
                         btnMonth.setBackgroundColor(0x00000000);
-                        btnMins.setText(5 + "分v");
+                        btnMins.setText(formatText(5));
                         break;
                 }
                 if (mPopupWindow != null) {
@@ -225,6 +225,10 @@ public class MainActivity extends AppCompatActivity {
         return contentView;
     }
 
+    private String formatText(int time) {
+        return String.format(Locale.getDefault(),"%d分v", time);
+    }
+
     private PopupWindow mPopupWindow;
     private int[] windowPos;
 
@@ -236,27 +240,13 @@ public class MainActivity extends AppCompatActivity {
             mPopupWindow.setBackgroundDrawable(new ColorDrawable());
             // 设置好参数之后再show
             windowPos = calculatePopWindowPos(anchorView, contentView);
-
-//            WindowManager.LayoutParams params = getWindow().getAttributes();//创建当前界面的一个参数对象
-//            params.alpha = 0.8f;
-//            getWindow().setAttributes(params);//把该参数对象设置进当前界面中
-//            popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-//                @Override
-//                public void onDismiss() {
-//                    WindowManager.LayoutParams params = getWindow().getAttributes();
-//                    params.alpha = 1.0f;//设置为不透明，即恢复原来的界面
-//                    getWindow().setAttributes(params);
-//                }
-//            });
         }
-//        int xOff = 20; // 可以自己调整偏移
-//        windowPos[0] -= xOff;
         mPopupWindow.showAtLocation(anchorView, Gravity.TOP | Gravity.START, windowPos[0], windowPos[1]);
     }
 
     private void showFragment(int index) {
         if (index != currentIndex) {
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             //隐藏当前显示的
             if (currentIndex != -1) {
                 ft.hide(fragments[currentIndex]);
@@ -286,16 +276,4 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        int len = fragments.length;
-//        FragmentTransaction ft = getFragmentManager().beginTransaction();
-//        for (int i = 0; i < len; i++) {
-//            if (fragments[i] != null) {
-//                ft.remove(fragments[i]);
-//            }
-//        }
-//        ft.commitAllowingStateLoss();
-//        super.onDestroy();
-//    }
 }

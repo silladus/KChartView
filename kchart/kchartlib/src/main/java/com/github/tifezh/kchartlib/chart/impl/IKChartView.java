@@ -2,7 +2,8 @@ package com.github.tifezh.kchartlib.chart.impl;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import java.util.Date;
 

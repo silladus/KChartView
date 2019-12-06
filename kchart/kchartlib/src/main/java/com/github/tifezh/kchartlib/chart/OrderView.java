@@ -3,6 +3,7 @@ package com.github.tifezh.kchartlib.chart;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,12 +16,14 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.widget.TextViewCompat;
+
 import com.github.tifezh.kchartlib.R;
+import com.github.tifezh.kchartlib.utils.ViewUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.tifezh.kchartlib.utils.ViewUtil.dp2Px;
 
 /**
  * 五档、明细图
@@ -39,16 +42,13 @@ public class OrderView extends RelativeLayout {
     private int layoutWidth;
     private int layoutHight;
     private LinearLayout linearLayout;
-    private int layoutCount = 0;
 
     public OrderView(Context context) {
         this(context, null);
-        initView();
     }
 
     public OrderView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-        initView();
     }
 
     public OrderView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -70,10 +70,6 @@ public class OrderView extends RelativeLayout {
         super.onLayout(changed, l, t, r, b);
         layoutWidth = getWidth();
         layoutHight = getHeight();
-//        if (layoutCount == 0) {
-//            initView();
-//        }
-//        layoutCount++;
     }
 
     private void initView() {
@@ -90,7 +86,7 @@ public class OrderView extends RelativeLayout {
         }
         linearLayout = new LinearLayout(getContext());
         linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setPadding(0, dp2Px(getContext(), mTopPadding), 0, 0);
+        linearLayout.setPadding(0, ViewUtil.dp2Px(getContext(), mTopPadding), 0, 0);
         linearLayout.addView(buildHeadLayout());
         initOrderView();
         if (btnText.length > 1) {
@@ -117,8 +113,7 @@ public class OrderView extends RelativeLayout {
         }
         View line = new View(getContext());
         line.setBackgroundColor(Color.GRAY);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, dp2Px(getContext(), 1));
-//        lp.setMargins(0, dp2Px(getContext(), 5), 0, dp2Px(getContext(), 5));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, ViewUtil.dp2Px(getContext(), 1));
         line.setLayoutParams(lp);
         linearLayout.addView(line);
         for (int i = 0; i < buys.size(); i++) {
@@ -137,10 +132,7 @@ public class OrderView extends RelativeLayout {
             String ord = order[i].equals("0.00") ? "－" : order[i];
             TextView tv = addListHeaderTextView(ord, (layoutWidth - 70) / 2, headLayout);
             if (i == order.length - 1) {
-                tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
-                if (order[i].length() > 5) {
-                    tv.setTextSize(10);
-                }
+                tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
             } else {
                 if (!order[0].equals("0.00")) {
                     if (Float.valueOf(order[0]) > close) {
@@ -157,7 +149,7 @@ public class OrderView extends RelativeLayout {
     }
 
     private View buildHeadLayout() {
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp2Px(getContext(), mItemViewHeight));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewUtil.dp2Px(getContext(), mItemViewHeight));
         LinearLayout headLayout = new LinearLayout(getContext());
         headLayout.setLayoutParams(lp);
         headLayout.setGravity(Gravity.CENTER);
@@ -245,7 +237,7 @@ public class OrderView extends RelativeLayout {
                 vs(SHOW_ORDER);
             }
         });
-        mStockAdapter = new StockAdapter();
+        StockAdapter mStockAdapter = new StockAdapter();
         mStockListView.setAdapter(mStockAdapter);
         mStockListView.setSelection(99);
         linearLayout.addView(mStockListView, new LayoutParams(LayoutParams.MATCH_PARENT,
@@ -253,16 +245,7 @@ public class OrderView extends RelativeLayout {
         return mStockListView;
     }
 
-    class StockAdapter extends BaseAdapter {
-//        @Override
-//        public boolean areAllItemsEnabled() {
-//            return false;
-//        }
-//
-//        @Override
-//        public boolean isEnabled(int position) {
-//            return false;
-//        }
+    static class StockAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
@@ -284,7 +267,7 @@ public class OrderView extends RelativeLayout {
             ViewHolder mHolder = null;
             if (convertView == null) {
                 mHolder = new ViewHolder();
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_adapter, null);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_adapter, null);
                 mHolder.time = (TextView) convertView.findViewById(R.id.order_deal_time);
                 mHolder.price = (TextView) convertView.findViewById(R.id.order_deal_price);
                 mHolder.count = (TextView) convertView.findViewById(R.id.order_deal_count);
@@ -298,25 +281,32 @@ public class OrderView extends RelativeLayout {
             return convertView;
         }
 
-        class ViewHolder {
+        static class ViewHolder {
             TextView time;
             TextView price;
             TextView count;
         }
     }
 
-    private StockAdapter mStockAdapter;
-
     public void setOrderDealData() {
         initView();
     }
 
-    private TextView addListHeaderTextView(String headerName, int AWidth, LinearLayout fixHeadLayout) {
+    private AppCompatTextView addListHeaderTextView(String headerName, int AWidth, LinearLayout fixHeadLayout) {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(AWidth, ViewGroup.LayoutParams.MATCH_PARENT);
-        TextView textView = new TextView(getContext());
+        AppCompatTextView textView = new AppCompatTextView(getContext());
         textView.setLayoutParams(lp);
         textView.setText(headerName);
         textView.setTextColor(0xff717171);
+        textView.setMaxLines(1);
+        TextViewCompat.setAutoSizeTextTypeWithDefaults(textView, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                textView,
+                8,
+                14,
+                1,
+                TypedValue.COMPLEX_UNIT_SP
+        );
         textView.setGravity(Gravity.CENTER);
         fixHeadLayout.addView(textView);
         return textView;
@@ -338,7 +328,7 @@ public class OrderView extends RelativeLayout {
         this.btnText = btnListData;
         btnWidth = new int[btnListData.length];
         for (int i = 0; i < btnListData.length; i++) {
-            btnWidth[i] = dp2Px(getContext(), mMoveViewWidth);
+            btnWidth[i] = ViewUtil.dp2Px(getContext(), mMoveViewWidth);
         }
     }
 
@@ -354,9 +344,7 @@ public class OrderView extends RelativeLayout {
     public void setOrder(List<String[]> buys, List<String[]> sells) {
         this.buys = buys;
         this.sells = sells;
-//        linearLayout.removeViews(1, linearLayout.getChildCount() - 2);
         this.removeAllViews();
-//        initOrderView();
         initView();
     }
 }

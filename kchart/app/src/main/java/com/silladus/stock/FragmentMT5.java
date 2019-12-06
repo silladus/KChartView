@@ -1,12 +1,14 @@
 package com.silladus.stock;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.github.tifezh.kchartlib.chart.formatter.DateFormatter;
 import com.github.tifezh.kchartlib.chart.impl.IKChartView;
@@ -22,34 +24,30 @@ import org.apache.http.util.EncodingUtils;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import butterknife.BindView;
 
 /**
  * Created by silladus on 2017/3/6.
  */
 
 public class FragmentMT5 extends Fragment {
-    @Bind(R.id.min5_view)
+    @BindView(R.id.min5_view)
     MTrend5View minView;
     private MChartAdapter mAdapter;
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_mt5, null);
-        ButterKnife.bind(this, layout);
-        initView();
-        initData();
-        return layout;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_mt5, container, false);
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        initView();
+        initData();
     }
 
     private void initView() {
@@ -88,11 +86,11 @@ public class FragmentMT5 extends Fragment {
                     }.getType());
                     setTrendMin(data);
                 }
-                getActivity().runOnUiThread(new Runnable() {
+                requireActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        mAdapter.addHeaderData(datas);
-                        mAdapter.addFooterData(datas);
+//                        mAdapter.addHeaderData(data);
+                        mAdapter.addFooterData(data);
                         minView.startAnimation();
                     }
                 });
@@ -100,7 +98,7 @@ public class FragmentMT5 extends Fragment {
         }).start();
     }
 
-    private List<KLineEntity> datas = new ArrayList<>();
+    private List<KLineEntity> data = new ArrayList<>();
 
     private void setTrendMin(List<MinLineEntity> data) {
         for (int i = 0; i < data.size(); i++) {
@@ -114,7 +112,7 @@ public class FragmentMT5 extends Fragment {
             min.Date = data.get(i).time;
             min.High = 10.44f;
             min.Low = 9.59f;
-            datas.add(min);
+            this.data.add(min);
         }
     }
 }

@@ -1,12 +1,14 @@
 package com.silladus.stock;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.github.tifezh.kchartlib.chart.OrderView;
 import com.github.tifezh.kchartlib.chart.formatter.TimeFormatter;
@@ -25,37 +27,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import butterknife.BindView;
 
 /**
  * Created by silladus on 2017/3/6.
  */
 
 public class FragmentMT extends Fragment {
-    @Bind(R.id.mt_view)
+    @BindView(R.id.mt_view)
     MTrendView minView;
-    @Bind(R.id.mt_order_view)
+    @BindView(R.id.mt_order_view)
     OrderView orderView;
     private MChartAdapter mAdapter;
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_mt, null);
-        ButterKnife.bind(this, layout);
-        initView();
-        initData();
-        String s = "";
-        String[] ss = s.split(",");
-        Log.e("onCreateView: ", "" + ss.length);
-        return layout;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_mt, container, false);
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        initView();
+        initData();
     }
 
     private void initView() {
@@ -117,7 +113,7 @@ public class FragmentMT extends Fragment {
                             ss[1] = "1.53万";
                         }
                         if (i == 3) {
-                            ss[1] = "61.37万";
+                            ss[1] = "601.37万";
                         }
                         buys.set(4 - i, ss);
                     } else {
@@ -128,7 +124,7 @@ public class FragmentMT extends Fragment {
                     }
                     cachePrice++;
                 }
-                getActivity().runOnUiThread(new Runnable() {
+                requireActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         orderView.setClose(3.54f);

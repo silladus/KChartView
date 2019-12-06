@@ -1,12 +1,14 @@
 package com.silladus.stock;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.github.tifezh.kchartlib.chart.formatter.DateFormatter;
 import com.github.tifezh.kchartlib.chart.impl.IKChartView;
@@ -23,32 +25,29 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import butterknife.BindView;
 
 /**
  * Created by silladus on 2017/3/6.
  */
 
 public class FragmentK extends Fragment {
-    @Bind(R.id.kchart_view)
+    @BindView(R.id.kchart_view)
     KChartView mKChartView;
     private KChartAdapter mAdapter;
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_kline, null);
-        ButterKnife.bind(this, layout);
-        initView();
-        initData();
-        return layout;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_kline, container, false);
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        initView();
+        initData();
     }
 
     private void initView() {
@@ -64,7 +63,7 @@ public class FragmentK extends Fragment {
                 Log.i("onSelectedChanged", "index:" + index + " closePrice:" + data.getClosePrice() + " chg:" + String.format(Locale.getDefault(), "%.2f", data.getRate() / data.getLastClosePrice()));
             }
         });
-        mKChartView.setOverScrollRange(ViewUtil.dp2Px(getActivity(), 0));
+        mKChartView.setOverScrollRange(ViewUtil.dp2Px(requireActivity(), 0));
     }
 
     private void initData() {
@@ -83,8 +82,9 @@ public class FragmentK extends Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                final List<KLineEntity> data = new Gson().fromJson(res, new TypeToken<List<KLineEntity>>() {}.getType());
-                getActivity().runOnUiThread(new Runnable() {
+                final List<KLineEntity> data = new Gson().fromJson(res, new TypeToken<List<KLineEntity>>() {
+                }.getType());
+                requireActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mAdapter.addFooterData(data);
